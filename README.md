@@ -5,7 +5,6 @@
 This example is currently set up with the following CI systems:
 
  -  GitHub Actions: [.github/workflows/main.yml](.github/workflows/main.yml)
- -  Travis: [.travis.yml](.travis.yml)
 
 There is an example of a custom rule for this repository as well --
 [example\_custom\_rule/long_description.rego](example\_custom\_rule/long_description.rego).
@@ -23,10 +22,6 @@ In your own repo, create a `.github/workflows` directory and customize your `mai
 This example has 6 jobs:
 
 - `regula_tf_job` demonstrates checking invalid Terraform HCL.
-- `regula_cfn_job` demonstrates checking invalid CloudFormation.
-- `regula_valid_cfn_job` demonstrates checking valid CloudFormation.
-- `regula_multi_cfn_job` demonstrates checking multiple CloudFormation templates (valid and invalid).
-- `regula_input_list_job` demonstrates checking CloudFormation _and_ Terraform (valid and invalid).
 - `regula_tf_plan_job` demonstrates checking an invalid Terraform plan.
 
 The jobs use the following [inputs](https://github.com/fugue/regula-action#inputs):
@@ -34,18 +29,6 @@ The jobs use the following [inputs](https://github.com/fugue/regula-action#input
 **regula_tf_job**
 - `input_path` is set to `infra_tf`, where [main.tf](https://github.com/fugue/regula-ci-example/blob/master/infra_tf/main.tf) lives.
 - `rego_paths` is set to the example rule in the [`example_custom_rule`](https://github.com/fugue/regula-ci-example/tree/master/example_custom_rule) folder. If you want to specify additional directories, you could do so with something like `example_custom_rule company_policy_rules`.
-
-**regula_cfn_job**
-- `input_path` is set to [`infra_cfn/cloudformation.yaml`](https://github.com/fugue/regula-ci-example/blob/master/infra_cfn/cloudformation.yaml)
-
-**regula_valid_cfn_job**
-- `input_path` is set to [`infra_valid_cfn/cloudformation.yaml`](https://github.com/fugue/regula-ci-example/blob/master/infra_valid_cfn/cloudformation.yaml)
-
-**regula_multi_cfn_job**
-- `input_path` is set to `'*/cloudformation.yaml'`, which includes both CloudFormation templates listed above
-
-**regula_input_list_job**
-- `input_path` is set to both CloudFormation templates _and_ the Terraform directory
 
 **regula_tf_plan_job**
 - This job uses the `hashicorp/setup-terraform` action to install Terraform and then generates a plan JSON file.
@@ -58,11 +41,9 @@ When you're done, push your changes. Now, the action will run every time you pus
 
 ### 2. Test it out!
 
-Commit a Terraform file, Terraform JSON plan, or CloudFormation template to the repository (and make sure they are where you specified in your `main.yml`!). In this case, that's the following:
+Commit a Terraform file or Terraform JSON plan (and make sure they are where you specified in your `main.yml`!). In this case, that's the following:
 
 - [`infra_tf/main.tf`](https://github.com/fugue/regula-ci-example/blob/master/infra_tf/main.tf)
-- [`infra_cfn/cloudformation.yaml`](https://github.com/fugue/regula-ci-example/blob/master/infra_cfn/cloudformation.yaml)
-- [`infra_valid_cfn/cloudformation.yaml`](https://github.com/fugue/regula-ci-example/blob/master/infra_valid_cfn/cloudformation.yaml)
 
 The action will run automatically, and you can view the Regula test results in the Actions tab of your repo.
 
@@ -252,109 +233,6 @@ Above, you can see that the resource `aws_iam_policy.basically_allow_all` had a 
 The resource _also_ failed the custom rule [`long_description`](https://github.com/fugue/regula-ci-example/blob/master/example_custom_rule/long_description.rego), which has a `Low` severity.
 
 Further down, you can see that the resource `aws_iam_policy.basically_deny_all` has a rule result of `PASS` for both rules.
-
-#### Results - invalid CloudFormation
-
-The output for our example **Regula CloudFormation** job is similar, as our invalid CloudFormation template had 7 `FAIL` rule results of varying severity and 10 `PASS` rule results. Here's the summary at the very end of the job log:
-
-```
-  "summary": {
-    "filepaths": [
-      "infra_cfn/cloudformation.yaml"
-    ],
-    "rule_results": {
-      "FAIL": 7,
-      "PASS": 10,
-      "WAIVED": 0
-    },
-    "severities": {
-      "Critical": 0,
-      "High": 6,
-      "Informational": 0,
-      "Low": 1,
-      "Medium": 0,
-      "Unknown": 0
-    }
-  }
-```
-
-#### Results - valid CloudFormation
-
-The output for our example **Regula Valid CloudFormation** job has 0 `FAIL` rule results and 3 `PASS` rule results. There are 0 severities listed because no rules failed. Here's the summary:
-
-```
-   "summary": {
-    "filepaths": [
-      "infra_valid_cfn/cloudformation.yaml"
-    ],
-    "rule_results": {
-      "FAIL": 0,
-      "PASS": 3,
-      "WAIVED": 0
-    },
-    "severities": {
-      "Critical": 0,
-      "High": 0,
-      "Informational": 0,
-      "Low": 0,
-      "Medium": 0,
-      "Unknown": 0
-    }
-  }
-```
-
-#### Results - multiple CloudFormation templates
-
-In our example **Regula multiple CloudFormation templates**, there are two `filepaths` listed because we passed in two CloudFormation templates:
-
-```
-  "summary": {
-    "filepaths": [
-      "infra_cfn/cloudformation.yaml",
-      "infra_valid_cfn/cloudformation.yaml"
-    ],
-    "rule_results": {
-      "FAIL": 7,
-      "PASS": 13,
-      "WAIVED": 0
-    },
-    "severities": {
-      "Critical": 0,
-      "High": 6,
-      "Informational": 0,
-      "Low": 1,
-      "Medium": 0,
-      "Unknown": 0
-    }
-  }
-```
-
-#### Results - CloudFormation and Terraform
-
-In our example **Regula on CloudFormation and Terraform**, `filepaths` lists each CloudFormation template and Terraform project directory:
-
-```
-  "summary": {
-    "filepaths": [
-      "infra_cfn/cloudformation.yaml",
-      "infra_tf/main.tf",
-      "infra_valid_cfn/cloudformation.yaml"
-    ],
-    "rule_results": {
-      "FAIL": 8,
-      "PASS": 16,
-      "WAIVED": 0
-    },
-    "severities": {
-      "Critical": 0,
-      "High": 7,
-      "Informational": 0,
-      "Low": 1,
-      "Medium": 0,
-      "Unknown": 0
-    }
-  }
-```
 
 #### Results - Terraform plan JSON file
 
