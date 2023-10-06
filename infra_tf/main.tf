@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 provider "google" {
-  project = var.project
-  region = var.region
+  project = "global-pn-solution-development"
+  region = "asia-southeast1"
+  zone = "asia-southeast1-a"
 }
 # [START storage_flask_google_cloud_quickstart_parent_tag]
 # [START compute_flask_quickstart_vpc]
@@ -28,7 +29,7 @@ resource "google_compute_network" "vpc_network" {
 resource "google_compute_subnetwork" "default" {
   name          = "my-custom-subnet"
   ip_cidr_range = "10.0.4.0/24"
-  region        = "asia-southeast1"
+  #region        = "asia-southeast1"
   network       = google_compute_network.vpc_network.id
 }
 # [END compute_flask_quickstart_vpc]
@@ -38,7 +39,7 @@ resource "google_compute_subnetwork" "default" {
 resource "google_compute_instance" "default" {
   name         = "flask-vm"
   machine_type = "f1-micro"
-  zone         = "asia-southeast1-a"
+  #zone         = "asia-southeast1-a"
   tags         = ["ssh"]
 
   boot_disk {
