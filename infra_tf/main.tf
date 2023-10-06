@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 provider "google" {
-  project = global-pn-solution-development
-  region = asia-southeast1
+  project = var.project
+  region = var.region
 }
 # [START storage_flask_google_cloud_quickstart_parent_tag]
 # [START compute_flask_quickstart_vpc]
