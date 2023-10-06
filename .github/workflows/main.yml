@@ -19,13 +19,15 @@ jobs:
     - uses: hashicorp/setup-terraform@v1
       with:
         terraform_wrapper: false
-        #terraform_version: 1.0.8
-        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+        terraform_version: 1.0.8
+        #cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
     - run: |
         cd infra_tf
         terraform init
         terraform plan -refresh=false -out="plan.tfplan"
         terraform show -json plan.tfplan > plan.json
+      env:
+        GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
     - uses: fugue/regula-action@v3.2.1
       with:
         input_path: infra_tf/plan.json
